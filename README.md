@@ -1,4 +1,4 @@
-# docstring2markdown
+# doc2md
 
 ## Install
 
