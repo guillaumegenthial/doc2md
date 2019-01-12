@@ -1,6 +1,6 @@
-"""Entry point of docstring2markdown
+"""Entry point of doc2md
 
-`docstring2markdown` is a command-line tool that allows you to build
+`doc2md` is a command-line tool that allows you to build
 simple markdown files from any python package.
 
 ### Get Started
@@ -11,7 +11,7 @@ installed.
 Then, run
 
 ```
-docstring2markdown PACKAGE_NAME -o OUTPUT_DIR
+doc2md PACKAGE_NAME -o OUTPUT_DIR
 ```
 
 """

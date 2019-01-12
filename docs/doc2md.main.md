@@ -1,14 +1,14 @@
-# `docstring2markdown.main`
+# `doc2md.main`
 
-Defined in [docstring2markdown.main.py](../docstring2markdown/main.py)
+Defined in [doc2md.main.py](../doc2md/main.py)
 
 
 <br/>
 
 
-Entry point of docstring2markdown
+Entry point of doc2md
 
-`docstring2markdown` is a command-line tool that allows you to build
+`doc2md` is a command-line tool that allows you to build
 simple markdown files from any python package.
 
 ### Get Started
@@ -19,7 +19,7 @@ installed.
 Then, run
 
 ```
-docstring2markdown PACKAGE_NAME -o OUTPUT_DIR
+doc2md PACKAGE_NAME -o OUTPUT_DIR
 ```
 
 
@@ -33,7 +33,7 @@ docstring2markdown PACKAGE_NAME -o OUTPUT_DIR
 ---
 
 ```python
-list_submodules(list_name:typing.List, package_name)
+list_submodules(list_name:List, package_name)
 ```
 
 Recursively explore module in package name
