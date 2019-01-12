@@ -9,11 +9,11 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 
-versionfile = open("docstring2markdown/version.py").read()
+versionfile = open("doc2md/version.py").read()
 metadata = dict(re.findall(r"__([a-z]+)__\s*=\s*'([^']+)'", versionfile))
 
 setup(
-    name="docstring2markdown",
+    name="doc2md",
     version=metadata['version'],
     author=metadata['author'],
     description="Generator of Markdown from docstrings",
@@ -28,6 +28,6 @@ setup(
         "numpydoc"
     ],
     entry_points={
-        'console_scripts': ['docstring2markdown = docstring2markdown.main:main']
+        'console_scripts': ['doc2md = doc2md.main:main']
     },
 )
