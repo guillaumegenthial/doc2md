@@ -32,11 +32,42 @@ DELIMITER = '\n---\n'
 
 
 class Dummy:
-    """My class docstring"""
+    """My class docstring
 
-    def my_method(self):
-        """My method docstring"""
-        pass
+    Here I explain a bit more.
+
+    Examples
+    --------
+    Do that
+
+    ```python
+    d = Dummy(0)
+    ```
+
+    Attributes
+    ----------
+    x : TYPE
+        Description
+
+    """
+
+    def __init__(self, x):
+        self.x = x
+
+    def my_method(self, y: int) -> int:
+        """My method docstring
+
+        Parameters
+        ----------
+        y : int
+            Description
+
+        Returns
+        -------
+        int
+            Description
+        """
+        return 2 * y
 
 
 def parse_arguments():
@@ -73,7 +104,7 @@ def module_to_path(import_str, base_path: str = None):
     return '{}{}.py'.format(base_path, str(import_str).replace('.', '/'))
 
 
-def parse_function_docstring(function) -> str:
+def parse_function_docstring(function, level=3) -> str:
     """Parse function docstring and return formated markdown
 
     An example would be
@@ -103,14 +134,9 @@ def parse_function_docstring(function) -> str:
         doc = NumpyDocString(raw_doc)
     else:
         return ''
-    # print(doc["Summary"])
-    # print(doc['Extended Summary'])
-    # print(doc["Parameters"])
-    # print(doc["Attributes"])
-    # print(doc["Methods"])
 
     lines = [
-        '#### {}'.format(name),
+        '{} `{}`'.format('#' * level, name),
         DELIMITER,
         '```python',
         '{}{}'.format(name, signature),
@@ -132,6 +158,55 @@ def parse_function_docstring(function) -> str:
         for name, dtype, description in doc['Returns']:
             lines.append('- `{}`: {}\n'.format(
                 name, '\n'.join(description)))
+
+    return '\n'.join(lines)
+
+
+def parse_class_docstring(cls, level=3) -> str:
+    """Parse class docstring and return formated markdown
+
+    Parameters
+    ----------
+    cls : python class
+        Imported class to convert
+
+    Returns
+    -------
+    str
+        Formated markdown documentation of the class
+    """
+    name = cls.__name__
+    signature = str(inspect.signature(cls.__init__))
+
+    raw_doc = inspect.getdoc(cls)
+    if raw_doc:
+        doc = NumpyDocString(raw_doc)
+    else:
+        doc = {}
+
+    lines = [
+        '{} *class* `{}`'.format('#' * level, name),
+        DELIMITER,
+        '```python',
+        '__init__{}'.format(signature),
+        '```',
+        '',
+        '\n'.join(doc.get('Summary', '')),
+        '',
+        '\n'.join(doc.get('Extended Summary', '')),
+        '',
+        ]
+
+    if doc.get('Examples'):
+        lines.append('__Examples__\n\n')
+        lines.extend(doc['Examples'])
+        lines.append('')
+
+    for attr_name, attr in cls.__dict__.items():
+        if attr_name.startswith('__') and attr_name not in {'__call__'}:
+            continue
+        if inspect.isfunction(attr):
+            lines.append(parse_function_docstring(attr, level=4))
 
     return '\n'.join(lines)
 
@@ -176,8 +251,17 @@ def parse_module_docstring(module, base_path: str = None) -> str:
 
     # Parse function docstrings
     content = []
+    for cls in classes:
+        if cls.__name__.startswith('_'):
+            # Private
+            continue
+        content.append(parse_class_docstring(cls) + VSPACE * 2)
+
     for function in functions:
-        content.append(parse_function_docstring(function))
+        if function.__name__.startswith('_'):
+            # Private
+            continue
+        content.append(parse_function_docstring(function) + VSPACE)
 
     return '\n'.join([
         '# `{}`'.format(module.__name__),

@@ -28,7 +28,61 @@ doc2md PACKAGE_NAME -o OUTPUT_DIR
 <br/>
 
 
-#### list_submodules
+### *class* Dummy
+
+---
+
+```python
+__init__(self, x)
+```
+
+My class docstring
+
+Here I explain a bit more.
+
+__Examples__
+
+
+Do that
+
+```python
+d = Dummy(0)
+```
+
+#### my_method
+
+---
+
+```python
+my_method(self, y:int) -> int
+```
+
+My method docstring
+
+
+
+__Args__
+
+
+- `y` (int): Description
+
+__Returns__
+
+
+- `int`: Description
+
+
+<br/>
+
+
+
+<br/>
+
+
+
+<br/>
+
+### list_submodules
 
 ---
 
@@ -50,7 +104,11 @@ __Args__
 
 <br/>
 
-#### main
+
+
+<br/>
+
+### main
 
 ---
 
@@ -69,7 +127,15 @@ Parses the arguments and build the documentation
 
 <br/>
 
-#### parse_arguments
+
+
+<br/>
+
+
+
+<br/>
+
+### parse_arguments
 
 ---
 
@@ -84,12 +150,45 @@ Parse arguments from command line
 
 <br/>
 
-#### parse_function_docstring
+
+
+<br/>
+
+### parse_class_docstring
 
 ---
 
 ```python
-parse_function_docstring(function) -> str
+parse_class_docstring(cls, level=3) -> str
+```
+
+Parse class docstring and return formated markdown
+
+
+
+__Args__
+
+
+- `cls` (python class): Imported class to convert
+
+__Returns__
+
+
+- `str`: Formated markdown documentation of the class
+
+
+<br/>
+
+
+
+<br/>
+
+### parse_function_docstring
+
+---
+
+```python
+parse_function_docstring(function, level=3) -> str
 ```
 
 Parse function docstring and return formated markdown
@@ -116,7 +215,11 @@ __Returns__
 
 <br/>
 
-#### parse_module_docstring
+
+
+<br/>
+
+### parse_module_docstring
 
 ---
 
@@ -139,3 +242,7 @@ __Returns__
 
 
 - `str`: Formated markdown documentation of the module
+
+
+<br/>
+
