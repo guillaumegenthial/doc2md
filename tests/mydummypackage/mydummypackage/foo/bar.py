@@ -68,21 +68,6 @@ class MyDummyClass:
         """
         return self.x + y
 
-    def my_method2(self, y: int) -> int:
-        """This is a one line description of this method
-
-        Parameters
-        ----------
-        y : int
-            Some integer that we want to increment by x.
-
-        Returns
-        -------
-        int
-            The sum of y and self.x
-        """
-        return self.x + y
-
     def _my_private_method(self, y: int) -> int:
         """Private methods won't be added to the doc.
 
@@ -100,9 +85,7 @@ class MyDummyClass:
 
     @property
     def my_property(self):
-        """Some property of my class, won't be added to the doc.
-
-        Not supported yet.
+        """Properties won't be added to the doc.
 
         Returns
         -------

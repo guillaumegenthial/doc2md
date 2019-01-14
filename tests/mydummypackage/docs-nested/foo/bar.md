@@ -6,7 +6,6 @@ This is a short one line description of this module
 
 * [*class* `MyDummyClass`](#my-dummy-class)
 	* [`my_method`](#`my-method`)
-	* [`my_method2`](#`my-method2`)
 
 
 
@@ -83,25 +82,6 @@ __Attributes__
 ---
 
 `my_method(self, y:int) -> int`
-
-This is a one line description of this method
-
-__Args__
-
-
-- `y` (`int`): Some integer that we want to increment by x.
-
-__Returns__
-
-
-- `int`: The sum of y and self.x
-
-<a id="`my-method2`"></a>
-#### `my_method2`
-
----
-
-`my_method2(self, y:int) -> int`
 
 This is a one line description of this method
 
