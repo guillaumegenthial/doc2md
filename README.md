@@ -1,10 +1,12 @@
 # doc2md
 
-`doc2md` is a simple tool that allow you to automatically build `.md` files to document a python package.
+See the [example package](./tests/mydummypackage/) and its [documentation produced by `doc2md`](./tests/mydummypackage/docs/)
+
+`doc2md` is a __simple__ tool that allow you to automatically build `.md` files to document a python package.
 
 Nothing more, nothing less.
 
-It supports plain markdown docstrings as well as numpy-style docstring.
+It supports __plain markdown docstrings__ as well as __NumPy__-style docstring.
 
 For each module in your package, it creates a markdown file with
 
@@ -14,12 +16,16 @@ For each module in your package, it creates a markdown file with
 
 It automatically adds links back to the code and allows cross-references.
 
+
 ## Relevant links
 
 - [pydoc-markdown](https://github.com/NiklasRosenstein/pydoc-markdown/): built on top of pydoc.
 - [keras `autogen.py` script](https://github.com/keras-team/keras/blob/master/docs/autogen.py): an inspiration for this project.
 
 ## Install
+
+You need `python>=3.5.2`.
+
 
 ### With pip
 

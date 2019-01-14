@@ -153,12 +153,12 @@ def parse_function_docstring(function, level=0) -> str:
     str
         Formated markdown documentation of the function
     """
-    title = function.__name__
+    title = '`{}`'.format(function.__name__)
     identifier = title.lower().replace('_', '-')
     size = '#' * (3 + level)
     lines = [
         '<a id="{}"></a>'.format(identifier),
-        '{} `{}`'.format(size, title),
+        '{} {}'.format(size, title),
         DELIMITER,
         '`{}{}`'.format(function.__name__, str(inspect.signature(function))),
         '',

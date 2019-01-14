@@ -24,6 +24,7 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3 :: Only",
     ),
+    python_requires='>=3.5.2',
     install_requires=[
         "numpydoc"
     ],
