@@ -69,7 +69,7 @@ Typically, if your repo looks like
 ```
 setup.py
 requirements.txt
-my-package/
+mypackage/
     __init__.py
     foo.py
     bar.py
@@ -79,7 +79,7 @@ docs/
 Simply do
 
 ```
-doc2md my-package -o docs -b ../
+doc2md mypackage -o docs -b ../
 ```
 
 > The `-b` option lets you specify the relative path from the documentation to the code. The default is `../` (one level up from the `docs` folder).
@@ -89,7 +89,7 @@ your repo will look like
 ```
 setup.py
 requirements.txt
-my-package/
+mypackage/
     __init__.py
     foo.py
     bar.py
