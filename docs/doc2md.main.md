@@ -2,16 +2,33 @@
 
 Defined in [doc2md.main.py](../doc2md/main.py)
 
+Entry point of doc2md
+
+* [camel_to_snake](#camel-to-snake)
+* [format_toc](#format-toc)
+* [list_submodules](#list-submodules)
+* [main](#main)
+* [module_to_path](#module-to-path)
+* [parse_arguments](#parse-arguments)
+* [parse_class_docstring](#parse-class-docstring)
+* [parse_docstring](#parse-docstring)
+* [parse_function_docstring](#parse-function-docstring)
+* [parse_module_docstring](#parse-module-docstring)
+* [replace_links](#replace-links)
+
+
 
 <br/>
 
 
-Entry point of doc2md
+
+__Overview__
+
 
 `doc2md` is a command-line tool that allows you to build
 simple markdown files from any python package.
 
-### Get Started
+__Get Started__
 
 Make sure you are in a python environment where your package is
 installed.
@@ -25,151 +42,106 @@ doc2md PACKAGE_NAME -o OUTPUT_DIR
 
 
 
+
 <br/>
 
 
-### *class* Dummy
+
+<a id="camel-to-snake"></a>
+### `camel_to_snake`
 
 ---
 
-```python
-__init__(self, x)
-```
-
-My class docstring
-
-Here I explain a bit more.
-
-__Examples__
+`camel_to_snake(s)`
 
 
-Do that
 
-```python
-d = Dummy(0)
-```
+<br/>
 
-#### my_method
+<a id="format-toc"></a>
+### `format_toc`
 
 ---
 
-```python
-my_method(self, y:int) -> int
-```
+`format_toc(toc) -> str`
 
-My method docstring
-
-
+Format toc to markdown
 
 __Args__
 
 
-- `y` (int): Description
-
-__Returns__
-
-
-- `int`: Description
+- `toc` (`List[Tuple[str]]`): Each tuple is name / id of a markdown object
 
 
 <br/>
 
-
-
-<br/>
-
-
-
-<br/>
-
-### list_submodules
+<a id="list-submodules"></a>
+### `list_submodules`
 
 ---
 
-```python
-list_submodules(list_name:List, package_name)
-```
+`list_submodules(list_name:List, package_name)`
 
 Recursively explore module in package name
 
-
-
 __Args__
 
 
-- `list_name` (List): Empty list that will contain the list of module names
+- `list_name` (`List`): Empty list that will contain the list of module names
 
-- `package_name` (python package): Imported module
-
-
-<br/>
-
+- `package_name` (`python package`): Imported module
 
 
 <br/>
 
-### main
+<a id="main"></a>
+### `main`
 
 ---
 
-```python
-main()
-```
+`main()`
 
 Parses the arguments and build the documentation
 
 
-
-
 <br/>
 
-
-
-<br/>
-
-
-
-<br/>
-
-
-
-<br/>
-
-### parse_arguments
+<a id="module-to-path"></a>
+### `module_to_path`
 
 ---
 
-```python
-parse_arguments()
-```
+`module_to_path(import_str, base_path:str)`
+
+
+
+<br/>
+
+<a id="parse-arguments"></a>
+### `parse_arguments`
+
+---
+
+`parse_arguments()`
 
 Parse arguments from command line
 
 
-
-
 <br/>
 
-
-
-<br/>
-
-### parse_class_docstring
+<a id="parse-class-docstring"></a>
+### `parse_class_docstring`
 
 ---
 
-```python
-parse_class_docstring(cls, level=3) -> str
-```
+`parse_class_docstring(cls, level=0) -> str`
 
 Parse class docstring and return formated markdown
-
-
 
 __Args__
 
 
-- `cls` (python class): Imported class to convert
+- `cls` (`python class`): Imported class to convert
 
 __Returns__
 
@@ -179,17 +151,34 @@ __Returns__
 
 <br/>
 
+<a id="parse-docstring"></a>
+### `parse_docstring`
+
+---
+
+`parse_docstring(doc:str) -> str`
+
+Parse docstring and returns formatted markdown
+
+__Args__
+
+
+- `doc` (`str`): The docstring of a python object
+
+__Returns__
+
+
+- `str`: Formatted markdown
 
 
 <br/>
 
-### parse_function_docstring
+<a id="parse-function-docstring"></a>
+### `parse_function_docstring`
 
 ---
 
-```python
-parse_function_docstring(function, level=3) -> str
-```
+`parse_function_docstring(function, level=0) -> str`
 
 Parse function docstring and return formated markdown
 
@@ -205,7 +194,7 @@ print(parse_function_docstring(my_function))
 __Args__
 
 
-- `function` (python function): Imported function to convert
+- `function` (`python function`): Imported function to convert
 
 __Returns__
 
@@ -215,28 +204,21 @@ __Returns__
 
 <br/>
 
-
-
-<br/>
-
-### parse_module_docstring
+<a id="parse-module-docstring"></a>
+### `parse_module_docstring`
 
 ---
 
-```python
-parse_module_docstring(module, base_path:str=None) -> str
-```
+`parse_module_docstring(module, base_path:str) -> str`
 
 Parse module docstring and return formated markdown
-
-
 
 __Args__
 
 
-- `module` (python module): Imported module containing code and docstring, to parse
+- `module` (`python module`): Imported module containing code and docstring, to parse
 
-- `base_path` (str, optional): Base path for relative imports
+- `base_path` (`str`): Base path for relative imports
 
 __Returns__
 
@@ -245,4 +227,11 @@ __Returns__
 
 
 <br/>
+
+<a id="replace-links"></a>
+### `replace_links`
+
+---
+
+`replace_links(doc)`
 
