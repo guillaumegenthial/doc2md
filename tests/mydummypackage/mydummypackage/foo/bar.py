@@ -84,7 +84,7 @@ class MyDummyClass:
         return self.x + y
 
     def _my_private_method(self, y: int) -> int:
-        """Private methods won't be displayed
+        """Private methods won't be added to the doc.
 
         Parameters
         ----------
@@ -100,7 +100,9 @@ class MyDummyClass:
 
     @property
     def my_property(self):
-        """Some property of my class
+        """Some property of my class, won't be added to the doc.
+
+        Not supported yet.
 
         Returns
         -------
