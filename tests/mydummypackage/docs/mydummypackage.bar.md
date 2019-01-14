@@ -4,8 +4,8 @@ Defined in [mydummypackage.bar.py](../mydummypackage/bar.py)
 
 This is a short one line description of this module
 
-* [dummy_function](#dummy-function)
-* [dummy_function2](#dummy-function2)
+* [`dummy_function`](#`dummy-function`)
+* [`dummy_function2`](#`dummy-function2`)
 
 
 
@@ -40,7 +40,7 @@ Simple isn't it?
 
 
 
-<a id="dummy-function"></a>
+<a id="`dummy-function`"></a>
 ### `dummy_function`
 
 ---
@@ -82,7 +82,7 @@ __Returns__
 
 <br/>
 
-<a id="dummy-function2"></a>
+<a id="`dummy-function2`"></a>
 ### `dummy_function2`
 
 ---

@@ -70,6 +70,8 @@ def camel_to_snake(s):
 
 
 def replace_links(doc):
+    if not doc:
+        return doc
     pattern = r'@@([^\s]*)'
     repl = r'[\1](./\1.md)'
     return re.sub(pattern, repl, doc)
@@ -243,10 +245,10 @@ def parse_module_docstring(module, base_path: str) -> str:
                  if m[1].__module__ == module.__name__]
     classes = [m[1] for m in inspect.getmembers(module, inspect.isclass)
                if m[1].__module__ == module.__name__]
-    doc = replace_links(str(module.__doc__))
+    doc = replace_links(module.__doc__)
 
     # Parse module docstring
-    if doc is None:
+    if not doc:
         header = ''
         intro = ''
     else:

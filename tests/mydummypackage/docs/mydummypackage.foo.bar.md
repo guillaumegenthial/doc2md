@@ -5,8 +5,8 @@ Defined in [mydummypackage.foo.bar.py](../mydummypackage/foo/bar.py)
 This is a short one line description of this module
 
 * [*class* `MyDummyClass`](#my-dummy-class)
-	* [my_method](#my-method)
-	* [my_method2](#my-method2)
+	* [`my_method`](#`my-method`)
+	* [`my_method2`](#`my-method2`)
 
 
 
@@ -77,7 +77,7 @@ __Attributes__
 	
 	Some longer description of this attribute.
 
-<a id="my-method"></a>
+<a id="`my-method`"></a>
 #### `my_method`
 
 ---
@@ -96,7 +96,7 @@ __Returns__
 
 - `int`: The sum of y and self.x
 
-<a id="my-method2"></a>
+<a id="`my-method2`"></a>
 #### `my_method2`
 
 ---

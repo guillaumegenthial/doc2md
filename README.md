@@ -1,10 +1,24 @@
 # doc2md
 
-See the [example package](./tests/mydummypackage/) and its [documentation produced by `doc2md`](./tests/mydummypackage/docs/)
-
 `doc2md` is a __simple__ tool that allow you to automatically build `.md` files to document a python package.
 
 Nothing more, nothing less.
+
+See the [example package](./tests/mydummypackage/) and its [documentation produced by `doc2md`](./tests/mydummypackage/docs/)
+
+<!-- MarkdownTOC -->
+
+* [Install](#install)
+    - [With pip](#with-pip)
+    - [Editable mode](#editable-mode)
+* [Getting Started](#getting-started)
+    - [Usage](#usage)
+    - [Example](#example)
+    - [Docstring examples](#docstring-examples)
+* [Relevant links](#relevant-links)
+
+<!-- /MarkdownTOC -->
+
 
 It supports __plain markdown docstrings__ as well as __NumPy__-style docstring.
 
@@ -14,25 +28,22 @@ For each module in your package, it creates a markdown file with
 - classes and public methods docstrings
 - function docstrings
 
-It automatically adds links back to the code and allows cross-references.
+It automatically adds links back to the code and allows cross-references between modules markdown files (see below).
 
-
-## Relevant links
-
-- [pydoc-markdown](https://github.com/NiklasRosenstein/pydoc-markdown/): built on top of pydoc.
-- [keras `autogen.py` script](https://github.com/keras-team/keras/blob/master/docs/autogen.py): an inspiration for this project.
-
+<a id="install"></a>
 ## Install
 
 You need `python>=3.5.2`.
 
 
+<a id="with-pip"></a>
 ### With pip
 
 ```
 pip install git+https://github.com/guillaumegenthial/doc2md.git
 ```
 
+<a id="editable-mode"></a>
 ### Editable mode
 
 ```
@@ -41,8 +52,10 @@ cd doc2md
 make install
 ```
 
+<a id="getting-started"></a>
 ## Getting Started
 
+<a id="usage"></a>
 ### Usage
 
 ```
@@ -57,6 +70,7 @@ requirements.txt
 my-package/
     __init__.py
     foo.py
+    bar.py
 docs/
 ```
 
@@ -66,8 +80,24 @@ Simply do
 doc2md my-package -o docs -b ../
 ```
 
-The `-b` option lets you specify the relative path from the documentation to the code. The default is `../` (one level up from the `docs` folder).
+> The `-b` option lets you specify the relative path from the documentation to the code. The default is `../` (one level up from the `docs` folder).
 
+your repo will look like
+
+```
+setup.py
+requirements.txt
+my-package/
+    __init__.py
+    foo.py
+    bar.py
+docs/
+    my-package.foo.md
+    my-package.bar.md
+```
+
+
+<a id="example"></a>
 ### Example
 
 To test locally,
@@ -88,6 +118,7 @@ To test locally,
     doc2md mydummypackage -o my-docs -b ../
     ```
 
+<a id="docstring-examples"></a>
 ### Docstring examples
 
 Support plain Markdown and NumPy-style docstring.
@@ -121,7 +152,8 @@ You can add references to other module's documentation with `@@path.to.module`.
         pass
 ```
 
-### Function
+<a id="function"></a>
+#### Function
 
 ```python
     def dummy_function(x: int, y: int) -> int:
@@ -159,7 +191,8 @@ You can add references to other module's documentation with `@@path.to.module`.
         return x + y
 ```
 
-### Class
+<a id="class"></a>
+#### Class
 
 
 ```python
@@ -240,3 +273,12 @@ You can add references to other module's documentation with `@@path.to.module`.
             """
             return self.x
 ```
+
+
+
+<a id="relevant-links"></a>
+## Relevant links
+
+- [pydoc-markdown](https://github.com/NiklasRosenstein/pydoc-markdown/): built on top of pydoc.
+- [keras `autogen.py` script](https://github.com/keras-team/keras/blob/master/docs/autogen.py): an inspiration for this project.
+

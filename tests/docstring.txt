@@ -1,0 +1,23 @@
+General Description
+
+    Some plain markdown.
+
+    Examples
+    --------
+    Some example
+
+    Attributes
+    ----------
+    x: int
+        Some attribute
+
+
+    Parameters
+    ----------
+    x: int
+        Some parameter
+
+    Returns
+    -------
+    int
+        Some return
