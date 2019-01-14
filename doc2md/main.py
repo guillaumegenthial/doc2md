@@ -3,7 +3,7 @@
 `doc2md` is a command-line tool that allows you to build
 simple markdown files from any python package.
 
-### Get Started
+__Get Started__
 
 Make sure you are in a python environment where your package is
 installed.
@@ -29,45 +29,6 @@ from numpydoc.docscrape import NumpyDocString
 
 VSPACE = '\n\n<br/>\n\n'
 DELIMITER = '\n---\n'
-
-
-class Dummy:
-    """My class docstring
-
-    Here I explain a bit more.
-
-    Examples
-    --------
-    Do that
-
-    ```python
-    d = Dummy(0)
-    ```
-
-    Attributes
-    ----------
-    x : TYPE
-        Description
-
-    """
-
-    def __init__(self, x):
-        self.x = x
-
-    def my_method(self, y: int) -> int:
-        """My method docstring
-
-        Parameters
-        ----------
-        y : int
-            Description
-
-        Returns
-        -------
-        int
-            Description
-        """
-        return 2 * y
 
 
 def parse_arguments():
@@ -98,13 +59,66 @@ def list_submodules(list_name: List, package_name):
             list_submodules(list_name, module_name)
 
 
-def module_to_path(import_str, base_path: str = None):
-    if base_path is None:
-        base_path = './'
+def module_to_path(import_str, base_path: str):
     return '{}{}.py'.format(base_path, str(import_str).replace('.', '/'))
 
 
-def parse_function_docstring(function, level=3) -> str:
+def parse_docstring(doc: str) -> str:
+    """Parse docstring and returns formatted markdown
+
+    Parameters
+    ----------
+    doc : str
+        The docstring of a python object
+
+    Returns
+    -------
+    str
+        Formatted markdown
+    """
+    lines = []
+    if not doc:
+        return ''
+    doc = NumpyDocString(doc)
+
+    if doc.get('Summary'):
+        lines.append('{}'.format('\n'.join(doc['Summary'])))
+        lines.append('')
+
+    if doc.get('Extended Summary'):
+        lines.append('{}'.format('\n'.join(doc['Extended Summary'])))
+        lines.append('')
+
+    if doc.get('Examples'):
+        lines.append('__Examples__\n\n')
+        lines.extend(doc['Examples'])
+        lines.append('')
+
+    if doc.get('Attributes'):
+        lines.append('__Attributes__\n\n')
+        for name, dtype, description in doc['Attributes']:
+            lines.append('- `{}` (`{}`): {}'.format(
+                name, dtype, '\n\t'.join(description)))
+            lines.append('')
+
+    if doc.get('Parameters'):
+        lines.append('__Args__\n\n')
+        for name, dtype, description in doc['Parameters']:
+            lines.append('- `{}` (`{}`): {}'.format(
+                name, dtype, '\n\t'.join(description)))
+            lines.append('')
+
+    if doc.get('Returns'):
+        lines.append('__Returns__\n\n')
+        for name, dtype, description in doc['Returns']:
+            lines.append('- `{}`: {}'.format(
+                name, '\n'.join(description)))
+            lines.append('')
+
+    return '\n'.join(lines)
+
+
+def parse_function_docstring(function, level=0) -> str:
     """Parse function docstring and return formated markdown
 
     An example would be
@@ -126,43 +140,23 @@ def parse_function_docstring(function, level=3) -> str:
     str
         Formated markdown documentation of the function
     """
-    name = function.__name__
-    signature = str(inspect.signature(function))
-
-    raw_doc = inspect.getdoc(function)
-    if raw_doc:
-        doc = NumpyDocString(raw_doc)
-    else:
-        return ''
-
+    title = function.__name__
+    identifier = title
+    size = '#' * (3 + level)
     lines = [
-        '{} `{}`'.format('#' * level, name),
+        '<a id="{}"></a>'.format(identifier),
+        '{} `{}`'.format(size, title),
         DELIMITER,
         '```python',
-        '{}{}'.format(name, signature),
+        '{}{}'.format(function.__name__, str(inspect.signature(function))),
         '```',
         '',
-        '{}'.format('\n'.join(doc['Summary'])),
-        '',
-        '{}'.format('\n'.join(doc['Extended Summary'])),
-        '',
-        ]
+        parse_docstring(inspect.getdoc(function))]
 
-    if doc['Parameters']:
-        lines.append('__Args__\n\n')
-        for name, dtype, description in doc['Parameters']:
-            lines.append('- `{}` ({}): {}\n'.format(
-                name, dtype, '\n'.join(description)))
-    if doc['Returns']:
-        lines.append('__Returns__\n\n')
-        for name, dtype, description in doc['Returns']:
-            lines.append('- `{}`: {}\n'.format(
-                name, '\n'.join(description)))
-
-    return '\n'.join(lines)
+    return [(level, title, identifier)], '\n'.join(lines)
 
 
-def parse_class_docstring(cls, level=3) -> str:
+def parse_class_docstring(cls, level=0) -> str:
     """Parse class docstring and return formated markdown
 
     Parameters
@@ -175,50 +169,55 @@ def parse_class_docstring(cls, level=3) -> str:
     str
         Formated markdown documentation of the class
     """
-    name = cls.__name__
+    title = '*class* `{}`'.format(cls.__name__)
     signature = str(inspect.signature(cls.__init__))
-
-    raw_doc = inspect.getdoc(cls)
-    if raw_doc:
-        doc = NumpyDocString(raw_doc)
-    else:
-        doc = {}
+    identifier = cls.__name__
+    size = '#' * (3 + level)
 
     lines = [
-        '{} *class* `{}`'.format('#' * level, name),
+        '<a id="{}"></a>'.format(identifier),
+        '{} {}'.format(size, title),
         DELIMITER,
         '```python',
         '__init__{}'.format(signature),
         '```',
-        '',
-        '\n'.join(doc.get('Summary', '')),
-        '',
-        '\n'.join(doc.get('Extended Summary', '')),
-        '',
+        parse_docstring(inspect.getdoc(cls))
         ]
 
-    if doc.get('Examples'):
-        lines.append('__Examples__\n\n')
-        lines.extend(doc['Examples'])
-        lines.append('')
-
+    tocs = [(level, title, identifier)]
     for attr_name, attr in cls.__dict__.items():
-        if attr_name.startswith('__') and attr_name not in {'__call__'}:
+        if attr_name.startswith('_') and attr_name not in {'__call__'}:
             continue
         if inspect.isfunction(attr):
-            lines.append(parse_function_docstring(attr, level=4))
+            fn_tocs, fn_doc = parse_function_docstring(attr, level=1)
+            lines.append(fn_doc)
+            tocs.extend(fn_tocs)
 
+    return tocs, '\n'.join(lines)
+
+
+def format_toc(toc) -> str:
+    """Format toc to markdown
+
+    Parameters
+    ----------
+    toc : List[Tuple[str]]
+        Each tuple is name / id of a markdown object
+    """
+    lines = []
+    for level, name, identifier in toc:
+        lines.append('{}* [{}](#{})'.format('\t' * level, name, identifier))
     return '\n'.join(lines)
 
 
-def parse_module_docstring(module, base_path: str = None) -> str:
+def parse_module_docstring(module, base_path: str) -> str:
     """Parse module docstring and return formated markdown
 
     Parameters
     ----------
     module : python module
         Imported module containing code and docstring, to parse
-    base_path : str, optional
+    base_path : str
         Base path for relative imports
 
     Returns
@@ -251,24 +250,31 @@ def parse_module_docstring(module, base_path: str = None) -> str:
 
     # Parse function docstrings
     content = []
+    tocs = []
     for cls in classes:
         if cls.__name__.startswith('_'):
             # Private
             continue
-        content.append(parse_class_docstring(cls) + VSPACE * 2)
+        cls_tocs, cls_doc = parse_class_docstring(cls)
+        tocs.extend(cls_tocs)
+        content.append(cls_doc + VSPACE * 2)
 
     for function in functions:
         if function.__name__.startswith('_'):
             # Private
             continue
-        content.append(parse_function_docstring(function) + VSPACE)
+        fn_tocs, fn_doc = parse_function_docstring(function)
+        tocs.extend(fn_tocs)
+        content.append(fn_doc + VSPACE)
 
-    return '\n'.join([
+    return '\n\n'.join([
         '# `{}`'.format(module.__name__),
-        '',
         'Defined in [{}.py]({})'.format(module.__name__, rel_path),
-        VSPACE,
         header,
+        '__Table Of Content__',
+        format_toc(tocs),
+        VSPACE,
+        '__Overview__',
         intro,
         VSPACE,
         VSPACE.join(content)
@@ -281,7 +287,7 @@ def main():
     args = parse_arguments()
     package = __import__(args.package)
     output_dir = args.output_dir
-    base_path = args.base_path
+    base_path = '../' if not args.base_path else args.base_path
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     # Get list of modules
