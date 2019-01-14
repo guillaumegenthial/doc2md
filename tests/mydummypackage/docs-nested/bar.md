@@ -1,6 +1,6 @@
 # `mydummypackage.bar`
 
-Defined in [mydummypackage.bar.py](../mydummypackage/bar.py)
+Defined in [mydummypackage.bar.py](./../mydummypackage/bar.py)
 
 This is a short one line description of this module
 
@@ -18,7 +18,7 @@ __Overview__
 
 Now, some plain markdown for the module level docstring
 
-Here is a link to another module [mydummypackage.foo.bar](./mydummypackage.foo.bar.md)
+Here is a link to another module [mydummypackage.foo.bar](./foo/bar.md)
 
 Here is an *example* of how to __use__ it
 

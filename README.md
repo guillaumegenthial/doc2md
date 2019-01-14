@@ -79,7 +79,7 @@ docs/
 Simply do
 
 ```
-doc2md mypackage -o docs -b ../
+doc2md mypackage -o docs -b ./../
 ```
 
 > The `-b` option lets you specify the relative path from the documentation to the code. The default is `../` (one level up from the `docs` folder).
@@ -92,10 +92,35 @@ requirements.txt
 mypackage/
     __init__.py
     foo.py
-    bar.py
+    bar/
+        __init__.py
+        foo.py
 docs/
-    mypackage.foo.md
-    mypackage.bar.md
+    foo.md
+    bar.foo.md
+```
+
+Alternatively, you can also mirror the package directory structure with the `-n` flag.
+
+```
+doc2md mypackage -o docs -n
+```
+
+your repo will now look like
+
+```
+setup.py
+requirements.txt
+mypackage/
+    __init__.py
+    foo.py
+    bar/
+        __init__.py
+        foo.py
+docs/
+    foo.md
+    bar/
+        foo.md
 ```
 
 
@@ -117,7 +142,7 @@ To test locally,
     ```
 3. Produce the documentation
     ```
-    doc2md mydummypackage -o my-docs -b ../
+    doc2md mydummypackage -o my-docs -b ./../
     ```
 
 <a id="docstring-examples"></a>

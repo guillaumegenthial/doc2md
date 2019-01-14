@@ -38,6 +38,7 @@ def parse_arguments():
     parser.add_argument('package')
     parser.add_argument('-o', '--output_dir')
     parser.add_argument('-b', '--base_path', required=False)
+    parser.add_argument('-n', '--nested', action='store_true')
     arguments = parser.parse_args()
     return arguments
 
@@ -60,8 +61,13 @@ def list_submodules(list_name: List, package_name):
             list_submodules(list_name, module_name)
 
 
-def module_to_path(import_str, base_path: str):
-    return '{}{}.py'.format(base_path, str(import_str).replace('.', '/'))
+def module_to_path(module, base_path: str, nested: bool):
+    if not nested:
+        return '{}{}.py'.format(base_path, str(module).replace('.', '/'))
+    else:
+        nlevelup = len(module.split('.')) - 2
+        filename = '{}.py'.format(str(module).replace('.', '/'))
+        return base_path + '../' * nlevelup + filename
 
 
 def camel_to_snake(s):
@@ -69,15 +75,27 @@ def camel_to_snake(s):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
-def replace_links(doc):
+def replace_links(doc, module, nested):
+    """Replace cross reference links `@@package.foo.bar`"""
     if not doc:
         return doc
+
+    def my_sub_fn(match):
+        group = match.group(1)
+        if nested:
+            nlevelup = len(module.split('.')) - 2
+            rel_path = '/'.join([
+                '/'.join(['.'] + ['..'] * nlevelup),
+                '/'.join(group.split('.')[1:])])
+        else:
+            rel_path = './' + '.'.join(group.split('.')[1:])
+        return '[{}]({}.md)'.format(group, rel_path)
+
     pattern = r'@@([^\s]*)'
-    repl = r'[\1](./\1.md)'
-    return re.sub(pattern, repl, doc)
+    return re.sub(pattern, my_sub_fn, doc)
 
 
-def parse_docstring(doc: str) -> str:
+def parse_docstring(doc: str, module: str, nested: bool) -> str:
     """Parse docstring and returns formatted markdown
 
     Parameters
@@ -93,7 +111,7 @@ def parse_docstring(doc: str) -> str:
     lines = []
     if not doc:
         return ''
-    doc = replace_links(doc)
+    doc = replace_links(doc, module, nested)
     doc = NumpyDocString(doc)
 
     if doc.get('Summary'):
@@ -133,7 +151,7 @@ def parse_docstring(doc: str) -> str:
     return '\n'.join(lines)
 
 
-def parse_function_docstring(function, level=0) -> str:
+def parse_function_docstring(function, module, nested, level=0) -> str:
     """Parse function docstring and return formated markdown
 
     An example would be
@@ -164,12 +182,12 @@ def parse_function_docstring(function, level=0) -> str:
         DELIMITER,
         '`{}{}`'.format(function.__name__, str(inspect.signature(function))),
         '',
-        parse_docstring(inspect.getdoc(function))]
+        parse_docstring(inspect.getdoc(function), module, nested)]
 
     return [(level, title, identifier)], '\n'.join(lines)
 
 
-def parse_class_docstring(cls, level=0) -> str:
+def parse_class_docstring(cls, module, nested, level=0) -> str:
     """Parse class docstring and return formated markdown
 
     Parameters
@@ -194,15 +212,16 @@ def parse_class_docstring(cls, level=0) -> str:
         '```python',
         '__init__{}'.format(signature),
         '```',
-        parse_docstring(inspect.getdoc(cls))
-        ]
+        parse_docstring(inspect.getdoc(cls), module, nested)
+    ]
 
     tocs = [(level, title, identifier)]
     for attr_name, attr in cls.__dict__.items():
         if attr_name.startswith('_') and attr_name not in {'__call__'}:
             continue
         if inspect.isfunction(attr):
-            fn_tocs, fn_doc = parse_function_docstring(attr, level=1)
+            fn_tocs, fn_doc = parse_function_docstring(
+                attr, module, nested, level=1)
             lines.append(fn_doc)
             tocs.extend(fn_tocs)
 
@@ -223,15 +242,17 @@ def format_toc(toc) -> str:
     return '\n'.join(lines)
 
 
-def parse_module_docstring(module, base_path: str) -> str:
+def parse_module_docstring(module: str, base_path: str, nested: bool) -> str:
     """Parse module docstring and return formated markdown
 
     Parameters
     ----------
-    module : python module
-        Imported module containing code and docstring, to parse
+    module : str
+        Module name to parse
     base_path : str
         Base path for relative imports
+    nested : bool
+        If true, docs dir structures follows package's
 
     Returns
     -------
@@ -239,13 +260,15 @@ def parse_module_docstring(module, base_path: str) -> str:
         Formated markdown documentation of the module
     """
     # Import module, functions and classes
-    module = __import__(module, fromlist="dummy")
-    rel_path = module_to_path(module.__name__, base_path)
-    functions = [m[1] for m in inspect.getmembers(module, inspect.isfunction)
-                 if m[1].__module__ == module.__name__]
-    classes = [m[1] for m in inspect.getmembers(module, inspect.isclass)
-               if m[1].__module__ == module.__name__]
-    doc = replace_links(module.__doc__)
+    imported_module = __import__(module, fromlist="dummy")
+    rel_path = module_to_path(module, base_path, nested)
+    functions = [m[1] for m in inspect.getmembers(imported_module,
+                                                  inspect.isfunction)
+                 if m[1].__module__ == module]
+    classes = [m[1] for m in inspect.getmembers(imported_module,
+                                                inspect.isclass)
+               if m[1].__module__ == module]
+    doc = replace_links(imported_module.__doc__, module, nested)
 
     # Parse module docstring
     if not doc:
@@ -267,7 +290,7 @@ def parse_module_docstring(module, base_path: str) -> str:
         if cls.__name__.startswith('_'):
             # Private
             continue
-        cls_tocs, cls_doc = parse_class_docstring(cls)
+        cls_tocs, cls_doc = parse_class_docstring(cls, module, nested)
         tocs.extend(cls_tocs)
         content.append(cls_doc)
 
@@ -275,13 +298,13 @@ def parse_module_docstring(module, base_path: str) -> str:
         if function.__name__.startswith('_'):
             # Private
             continue
-        fn_tocs, fn_doc = parse_function_docstring(function)
+        fn_tocs, fn_doc = parse_function_docstring(function, module, nested)
         tocs.extend(fn_tocs)
         content.append(fn_doc)
 
     lines = [
-        '# `{}`'.format(module.__name__),
-        'Defined in [{}.py]({})'.format(module.__name__, rel_path)
+        '# `{}`'.format(module),
+        'Defined in [{}.py]({})'.format(module, rel_path)
     ]
 
     if header:
@@ -303,13 +326,19 @@ def parse_module_docstring(module, base_path: str) -> str:
     return '\n\n'.join(lines)
 
 
+def is_init_module(module):
+    init = '__init__.py'
+    return Path(__import__(module, fromlist="dummy").__file__).name == init
+
+
 def main():
     """Parses the arguments and build the documentation"""
     # Parse options, load package, create output directory
     args = parse_arguments()
     package = __import__(args.package)
     output_dir = args.output_dir
-    base_path = '../' if not args.base_path else args.base_path
+    base_path = './../' if not args.base_path else args.base_path
+    nested = args.nested
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     # Get list of modules
@@ -318,6 +347,12 @@ def main():
 
     # For each module write markdown file in output directory
     for module in package_modules:
-        markdown = parse_module_docstring(module, base_path)
-        with Path(output_dir, module + '.md').open('w') as file:
+        if is_init_module(module):
+            continue
+        markdown = parse_module_docstring(module, base_path, nested)
+        separator = '/' if nested else '.'
+        name = separator.join(module.split('.')[1:])
+        Path(output_dir, name + '.md').parent.mkdir(
+            exist_ok=True, parents=True)
+        with Path(output_dir, name + '.md').open('w') as file:
             file.write(markdown)

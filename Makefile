@@ -4,5 +4,6 @@ install:
 
 test:
 	cd tests/mydummypackage && python -m pip install -e .
-	cd tests/mydummypackage && doc2md mydummypackage -o test-docs -b ../
+	cd tests/mydummypackage && doc2md mydummypackage -o test-docs
+	cd tests/mydummypackage && doc2md mydummypackage -o test-docs-nested -n
 	python -m pytest tests
