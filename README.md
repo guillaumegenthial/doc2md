@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/guillaumegenthial/doc2md.svg?branch=master)](https://travis-ci.org/guillaumegenthial/doc2md)
 
-`doc2md` is a __simple__ tool that allow you to automatically build `.md` files to document a python package.
+`doc2md` is a __simple__ tool that automatically builds `.md` files to document a python package.
 
 Nothing more, nothing less.
 
