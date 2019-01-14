@@ -94,8 +94,8 @@ mypackage/
     foo.py
     bar.py
 docs/
-    my-package.foo.md
-    my-package.bar.md
+    mypackage.foo.md
+    mypackage.bar.md
 ```
 
 
