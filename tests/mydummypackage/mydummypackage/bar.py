@@ -2,8 +2,12 @@
 
 Now, some plain markdown for the module level docstring
 
+Here is a link to another module @@mydummypackage.foo.bar
+
 Here is an *example* of how to __use__ it
 
+Examples
+--------
 Here is some code
 
 ```python
@@ -25,6 +29,8 @@ def dummy_function(x: int, y: int) -> int:
 
     Here is an *example* of how to __use__ it
 
+    Examples
+    --------
     Here is a code snippet
 
     ```python
@@ -58,6 +64,8 @@ def dummy_function2(x: int, y: int) -> int:
 
     Here is an *example* of how to __use__ it
 
+    Examples
+    --------
     Here is a code snippet
 
     ```python

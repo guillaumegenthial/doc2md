@@ -22,6 +22,7 @@ import argparse
 import inspect
 from pathlib import Path
 import pkgutil
+import re
 from typing import List
 
 from numpydoc.docscrape import NumpyDocString
@@ -63,6 +64,17 @@ def module_to_path(import_str, base_path: str):
     return '{}{}.py'.format(base_path, str(import_str).replace('.', '/'))
 
 
+def camel_to_snake(s):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
+def replace_links(doc):
+    pattern = r'@@([^\s]*)'
+    repl = r'[\1](./\1.md)'
+    return re.sub(pattern, repl, doc)
+
+
 def parse_docstring(doc: str) -> str:
     """Parse docstring and returns formatted markdown
 
@@ -79,6 +91,7 @@ def parse_docstring(doc: str) -> str:
     lines = []
     if not doc:
         return ''
+    doc = replace_links(doc)
     doc = NumpyDocString(doc)
 
     if doc.get('Summary'):
@@ -141,15 +154,13 @@ def parse_function_docstring(function, level=0) -> str:
         Formated markdown documentation of the function
     """
     title = function.__name__
-    identifier = title
+    identifier = title.lower().replace('_', '-')
     size = '#' * (3 + level)
     lines = [
         '<a id="{}"></a>'.format(identifier),
         '{} `{}`'.format(size, title),
         DELIMITER,
-        '```python',
-        '{}{}'.format(function.__name__, str(inspect.signature(function))),
-        '```',
+        '`{}{}`'.format(function.__name__, str(inspect.signature(function))),
         '',
         parse_docstring(inspect.getdoc(function))]
 
@@ -171,7 +182,7 @@ def parse_class_docstring(cls, level=0) -> str:
     """
     title = '*class* `{}`'.format(cls.__name__)
     signature = str(inspect.signature(cls.__init__))
-    identifier = cls.__name__
+    identifier = camel_to_snake(cls.__name__).replace('_', '-')
     size = '#' * (3 + level)
 
     lines = [
@@ -232,10 +243,9 @@ def parse_module_docstring(module, base_path: str) -> str:
                  if m[1].__module__ == module.__name__]
     classes = [m[1] for m in inspect.getmembers(module, inspect.isclass)
                if m[1].__module__ == module.__name__]
+    doc = replace_links(str(module.__doc__))
 
     # Parse module docstring
-    doc = module.__doc__
-
     if doc is None:
         header = ''
         intro = ''
@@ -257,7 +267,7 @@ def parse_module_docstring(module, base_path: str) -> str:
             continue
         cls_tocs, cls_doc = parse_class_docstring(cls)
         tocs.extend(cls_tocs)
-        content.append(cls_doc + VSPACE * 2)
+        content.append(cls_doc)
 
     for function in functions:
         if function.__name__.startswith('_'):
@@ -265,20 +275,30 @@ def parse_module_docstring(module, base_path: str) -> str:
             continue
         fn_tocs, fn_doc = parse_function_docstring(function)
         tocs.extend(fn_tocs)
-        content.append(fn_doc + VSPACE)
+        content.append(fn_doc)
 
-    return '\n\n'.join([
+    lines = [
         '# `{}`'.format(module.__name__),
-        'Defined in [{}.py]({})'.format(module.__name__, rel_path),
-        header,
-        '__Table Of Content__',
-        format_toc(tocs),
-        VSPACE,
-        '__Overview__',
-        intro,
-        VSPACE,
-        VSPACE.join(content)
+        'Defined in [{}.py]({})'.format(module.__name__, rel_path)
+    ]
+
+    if header:
+        lines.append(header)
+    if tocs:
+        lines.extend([
+            format_toc(tocs),
+            VSPACE
         ])
+    if intro:
+        lines.extend([
+            '__Overview__',
+            intro,
+            VSPACE
+        ])
+    if content:
+        lines.append(VSPACE.join(content))
+
+    return '\n\n'.join(lines)
 
 
 def main():

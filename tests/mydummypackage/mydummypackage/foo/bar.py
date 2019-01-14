@@ -2,7 +2,12 @@
 
 Now, some plain markdown for the module level docstring
 
+Here is a link to another module @@mydummypackage.bar
+
 Here is an *example* of how to __use__ it
+
+Examples
+--------
 
 ```python
 from mydummypackage.bar import dummy_function
