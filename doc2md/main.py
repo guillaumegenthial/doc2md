@@ -294,7 +294,7 @@ def parse_module_docstring(module: str, base_path: str, nested: bool) -> str:
         tocs.extend(cls_tocs)
         content.append(cls_doc)
 
-    for function in functions:
+    for function in sorted(functions, key=lambda fn: fn.__name__):
         if function.__name__.startswith('_'):
             # Private
             continue
