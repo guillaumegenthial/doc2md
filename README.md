@@ -79,10 +79,10 @@ docs/
 Simply do
 
 ```
-doc2md mypackage -o docs -b ./../
+doc2md mypackage -o docs -b ..
 ```
 
-> The `-b` option lets you specify the relative path from the documentation to the code. The default is `../` (one level up from the `docs` folder).
+> The `-b` option lets you specify the relative path from the documentation to the code. The default is `..` (one level up from the `docs` folder).
 
 your repo will look like
 
@@ -142,7 +142,7 @@ To test locally,
     ```
 3. Produce the documentation
     ```
-    doc2md mydummypackage -o my-docs -b ./../
+    doc2md mydummypackage -o my-docs -b ..
     ```
 
 <a id="docstring-examples"></a>

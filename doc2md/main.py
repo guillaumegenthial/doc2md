@@ -39,6 +39,7 @@ def parse_arguments():
     parser.add_argument('-o', '--output_dir')
     parser.add_argument('-b', '--base_path', required=False)
     parser.add_argument('-n', '--nested', action='store_true')
+    parser.add_argument('-i', '--include_init', action='store_true')
     arguments = parser.parse_args()
     return arguments
 
@@ -62,12 +63,12 @@ def list_submodules(list_name: List, package_name):
 
 
 def module_to_path(module, base_path: str, nested: bool):
+    filename = '{}.py'.format(str(module).replace('.', '/'))
     if not nested:
-        return '{}{}.py'.format(base_path, str(module).replace('.', '/'))
+        return '/'.join(['.', base_path, filename])
     else:
         nlevelup = len(module.split('.')) - 2
-        filename = '{}.py'.format(str(module).replace('.', '/'))
-        return base_path + '../' * nlevelup + filename
+        return '/'.join(['.'] + ['..'] * nlevelup + [base_path, filename])
 
 
 def camel_to_snake(s):
@@ -337,8 +338,9 @@ def main():
     args = parse_arguments()
     package = __import__(args.package)
     output_dir = args.output_dir
-    base_path = './../' if not args.base_path else args.base_path
+    base_path = '..' if not args.base_path else args.base_path
     nested = args.nested
+    include_init = args.include_init
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     # Get list of modules
@@ -347,7 +349,7 @@ def main():
 
     # For each module write markdown file in output directory
     for module in package_modules:
-        if is_init_module(module):
+        if not include_init and is_init_module(module):
             continue
         markdown = parse_module_docstring(module, base_path, nested)
         separator = '/' if nested else '.'
