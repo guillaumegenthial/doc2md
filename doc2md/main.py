@@ -62,8 +62,11 @@ def list_submodules(list_name: List, package_name):
             list_submodules(list_name, module_name)
 
 
-def module_to_path(module, base_path: str, nested: bool):
-    filename = '{}.py'.format(str(module).replace('.', '/'))
+def module_to_path(module: str, base_path: str, nested: bool):
+    name = str(module).replace('.', '/')
+    if is_init_module(module):
+        name = name + '/' + '__init__'
+    filename = '{}.py'.format(name)
     if not nested:
         return '/'.join(['.', base_path, filename])
     else:
@@ -243,6 +246,65 @@ def format_toc(toc) -> str:
     return '\n'.join(lines)
 
 
+def get_module_docstring(module: str):
+    imported_module = __import__(module, fromlist="dummy")
+    return imported_module.__doc__
+
+
+def get_module_functions(module: str):
+    """Returns list of functions defined in the module
+
+    If the module is an init file, it will return all the imported
+    functions as well.
+
+    If the module is not an init file, it will return only the functions
+    that are defined in this module (and not imported stuff).
+
+    Parameters
+    ----------
+    module : str
+        Module name
+
+    Returns
+    -------
+    List of functions
+    """
+    imported_module = __import__(module, fromlist="dummy")
+    functions = [m[1] for m in inspect.getmembers(imported_module,
+                                                  inspect.isfunction)]
+    if is_init_module(module):
+        return functions
+    else:
+        return [m for m in functions if m.__module__ == module]
+
+
+def get_module_classes(module: str):
+    """Returns list of classes defined in the module
+
+    If the module is an init file, it will return all the imported
+    classes as well.
+
+    If the module is not an init file, it will return only the classes
+    that are defined in this module (and not imported stuff).
+
+    Parameters
+    ----------
+    module : str
+        Module name
+
+    Returns
+    -------
+    List of classes
+    """
+    imported_module = __import__(module, fromlist="dummy")
+    classes = [m[1] for m in inspect.getmembers(imported_module,
+                                                inspect.isclass)]
+    if is_init_module(module):
+        return classes
+    else:
+        return [m for m in classes if m.__module__ == module]
+
+
 def parse_module_docstring(module: str, base_path: str, nested: bool) -> str:
     """Parse module docstring and return formated markdown
 
@@ -261,15 +323,10 @@ def parse_module_docstring(module: str, base_path: str, nested: bool) -> str:
         Formated markdown documentation of the module
     """
     # Import module, functions and classes
-    imported_module = __import__(module, fromlist="dummy")
     rel_path = module_to_path(module, base_path, nested)
-    functions = [m[1] for m in inspect.getmembers(imported_module,
-                                                  inspect.isfunction)
-                 if m[1].__module__ == module]
-    classes = [m[1] for m in inspect.getmembers(imported_module,
-                                                inspect.isclass)
-               if m[1].__module__ == module]
-    doc = replace_links(imported_module.__doc__, module, nested)
+    classes = get_module_classes(module)
+    functions = get_module_functions(module)
+    doc = replace_links(get_module_docstring(module), module, nested)
 
     # Parse module docstring
     if not doc:
@@ -336,7 +393,7 @@ def main():
     """Parses the arguments and build the documentation"""
     # Parse options, load package, create output directory
     args = parse_arguments()
-    package = __import__(args.package)
+    package = __import__(args.package, fromlist="dummy")
     output_dir = args.output_dir
     base_path = '..' if not args.base_path else args.base_path
     nested = args.nested
@@ -354,6 +411,8 @@ def main():
         markdown = parse_module_docstring(module, base_path, nested)
         separator = '/' if nested else '.'
         name = separator.join(module.split('.')[1:])
+        if is_init_module(module):
+            name = name + '/' + '__init__'
         Path(output_dir, name + '.md').parent.mkdir(
             exist_ok=True, parents=True)
         with Path(output_dir, name + '.md').open('w') as file:
