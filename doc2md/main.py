@@ -54,6 +54,10 @@ def list_submodules(list_name: List, package_name):
     package_name : python package
         Imported module
     """
+    # Deal with the case where package is actually a simple module
+    if not hasattr(package_name, '__path__'):
+        list_name.append(package_name.__name__)
+        return
     for _, module_name, is_pkg in pkgutil.walk_packages(
             package_name.__path__, package_name.__name__ + '.'):
         list_name.append(module_name)
